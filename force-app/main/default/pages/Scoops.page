@@ -1,0 +1,168 @@
+<apex:page controller="Scoops">
+    <style> 
+        .item{
+            display: inline-block;
+            background: hotpink;
+            border: 5px solid limegreen;
+            border-radius: 6px;
+            margin: 0 5px 5px 0;
+            padding: 1em;
+            width: 13em;
+        }
+        .name{
+            font-weight: bold;
+            color: white; 
+        }
+        .welcome{
+            font-weight: bold;
+            color: lightseagreen;
+            font-size: 3em;
+            display: block;
+        }
+        .all-container > div {
+            vertical-align: top;
+            display: inline-block;
+        }
+        .cart {
+            border: 5px solid lavender;
+        }
+        .total {
+
+        }
+        .row > div {
+            display: inline-block;
+            width: 14em;
+        }
+
+    </style>
+
+    <h1 class="welcome"> Welcome to Scoops!</h1>
+    <apex:outputPanel id="all" layout="block" styleClass="all-container"> 
+        <apex:outputPanel styleClass="main" layout="block">   
+            <apex:outputPanel id="items" layout="block" rendered="{!state=='shopping'}">
+                <apex:form>
+                    <apex:repeat value="{!cartons}" var="carton">
+                        <div class="item">   
+                            <div class="name"> 
+                                {!carton.item.name}
+                            </div>
+                            <div class="description"> 
+                                {!carton.item.description__c}
+                            </div>
+                            <div class="purchase"> 
+                                <div> 
+                                    {!carton.item.price__c}
+                                </div>
+                                <div> 
+                                    <apex:selectList value="{!carton.selectedquantity}" size="1"> 
+                                        <apex:selectOption itemvalue="1" itemlabel="1"/>
+                                        <apex:selectOption itemvalue="2" itemlabel="2"/>
+                                        <apex:selectOption itemvalue="3" itemlabel="3"/>
+                                        <apex:selectOption itemvalue="4" itemlabel="4"/>
+                                        <apex:selectOption itemvalue="5" itemlabel="5"/>
+                                    </apex:selectList>
+                                </div>
+                                <div>
+                                    <apex:commandButton value="add" action="{!addtocart}" rerender="sidebar, items">
+                                        <apex:param value="{!carton.item.id}" assignTo="{!selecteditemid}" name="placeholder"/>
+                                    </apex:commandButton> 
+                                </div>
+                            </div>
+                        </div>
+                    </apex:repeat>
+                </apex:form>
+            </apex:outputPanel>
+            <apex:outputPanel id="checkout" layout="block" rendered="{!state=='checkout'}">
+                <apex:form> 
+                    <div class="row">
+                        <label> First Name:</label>
+                        <apex:inputText value="{!first_name}"> </apex:inputText>
+                    </div>
+                    <div class="row">
+                        <label> Last Name:</label>
+                        <apex:inputText value="{!last_name}"> </apex:inputText>
+                    </div>
+                    <div class="row">
+                        <label> Street:</label>
+                        <apex:inputText value="{!street}"> </apex:inputText>
+                    </div>
+                    <div class="row">
+                        <label> Zip:</label>
+                        <apex:inputText value="{!zip}"> </apex:inputText>
+                    </div>
+                    <div class="row">
+                        <label> Email:</label>
+                        <apex:inputText value="{!email}"> </apex:inputText>
+                    </div>
+                    <div class="row">
+                        <label> Credit Card Number:</label>
+                        <apex:inputText value="{!credit_card_number}"> </apex:inputText>
+                    </div>
+                    <div class="row">
+                        <label> Exp Month:</label>
+                        <apex:selectList value="{!exp_month}" size="1"> 
+                            <apex:selectOption itemvalue="01" itemlabel="01"/>
+                            <apex:selectOption itemvalue="02" itemlabel="02"/>
+                            <apex:selectOption itemvalue="03" itemlabel="03"/>
+                            <apex:selectOption itemvalue="04" itemlabel="04"/>
+                            <apex:selectOption itemvalue="05" itemlabel="05"/>
+                            <apex:selectOption itemvalue="06" itemlabel="06"/>
+                            <apex:selectOption itemvalue="07" itemlabel="07"/>
+                            <apex:selectOption itemvalue="08" itemlabel="08"/>
+                            <apex:selectOption itemvalue="09" itemlabel="09"/>
+                            <apex:selectOption itemvalue="10" itemlabel="10"/>
+                            <apex:selectOption itemvalue="11" itemlabel="11"/>
+                            <apex:selectOption itemvalue="12" itemlabel="12"/>
+                        </apex:selectList>
+                        <label> Exp Year:</label>
+                        <apex:selectList value="{!exp_year}" size="1"> 
+                            <apex:selectOptions value="{!exp_year_options}"/>
+                        </apex:selectList>
+                        <label> Security Code:</label>
+                        <apex:inputText value="{!security_code}"> </apex:inputText>
+                    </div>
+                    <apex:commandButton value="Submit Order" action="{!chargeCard}" rerender="all"/>
+                    {!debug}
+                </apex:form>
+            </apex:outputPanel>
+        </apex:outputPanel>
+
+    
+        <apex:outputPanel styleClass="sidebar" layout="block" id="sidebar" rendered="{!state != 'charged'}">
+            <apex:outputPanel styleClass="cart" layout="block"> 
+                <h2> Shopping Cart</h2> 
+                <apex:outputPanel layout="block" rendered="{!total == 0}"> 
+                    <h2> There is nothing in the cart</h2>
+                </apex:outputPanel>
+                <apex:outputPanel layout="block" rendered="{!total != 0}"> 
+                    <table > 
+                        <thead> 
+                            <th> Flavor</th>
+                            <th> Qty</th>
+                            <th> Subtotal</th>
+                        </thead>
+                        <apex:repeat value="{!cartons}" var="carton">   
+                            <tr> 
+                            <td> {!carton.item.name}</td>
+                            <td> {!carton.quantity}</td>
+                            <td><apex:outputText value="{0, number, currency}"><apex:param value="{!carton.subtotal}"></apex:param></apex:outputText></td>
+                            </tr>
+                        
+                    </apex:repeat>
+                        <tr> 
+                            <td></td>
+                            <td> Total: </td>
+                            <td><apex:outputText value="{0, number, currency}"><apex:param value="{!total}"></apex:param></apex:outputText> </td>
+                        </tr>
+                    </table>
+                    <apex:form rendered="{!state=='shopping'}">
+                        <apex:commandButton value="Checkout" action="{!checkout}" rerender="all"/>
+                    </apex:form>
+                </apex:outputPanel>
+            </apex:outputPanel>
+        </apex:outputPanel>
+        <apex:outputPanel styleClass="pageMessage" layout="block" rendered="{! !isBlank(pageMessage)}"> 
+            {!pageMessage}
+        </apex:outputPanel>
+    </apex:outputPanel>
+</apex:page>

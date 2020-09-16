@@ -1,0 +1,27 @@
+<apex:page controller="ContactsList" lightningStylesheets="true">
+    <style> 
+        .flex-container{display:flex;
+                        justify-content:space-between;
+                        margin:1em;
+                        }
+    </style>
+    <apex:pageBlock>
+        <apex:form styleClass="flex-container">
+            <div> <apex:inputText html-placeholder="First Name" value="{!firstname}"/> </div>
+            <div> <apex:inputText html-placeholder="Last Name" value="{!lastname}"/> </div>
+            <div> <apex:inputText html-placeholder="Title" value="{!title}"/> </div>
+            <div> <apex:inputText html-placeholder="Email" value="{!email}"/> </div>
+            <apex:commandButton value="filter" action="{!filter}"/>
+        </apex:form>
+        <apex:pageBlockTable value="{!contacts}" var="contact">
+            <apex:column headervalue="Name" >
+                <apex:outputLink value="/{!contact.id}">{!contact.name}</apex:outputLink>
+            </apex:column>
+            <apex:column value="{!contact.accountid}" />
+            <apex:column value="{!contact.title}" />
+            <apex:column value="{!contact.phone}" />
+            <apex:column value="{!contact.email}" />
+
+        </apex:pageBlockTable>
+    </apex:pageBlock>
+</apex:page>
